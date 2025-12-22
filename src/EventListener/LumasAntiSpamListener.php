@@ -9,7 +9,6 @@ use Contao\Form;
 use Contao\PageModel;
 use Contao\Widget;
 use Doctrine\DBAL\Connection;
-use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\Request;
@@ -50,7 +49,6 @@ final class LumasAntiSpamListener
 
 	/**
 	 * Defaults; can be overridden by form or root page fields (lumas_antispam_*)
-	 * NOTE: ip_block_ttl here is just a base/default for compatibility/UI; the TTL is computed from reputation steps.
 	 */
 	private array $defaults = [
 		'minDelay'      => 15,
@@ -67,7 +65,6 @@ final class LumasAntiSpamListener
 		private readonly RequestStack $requestStack,
 		private readonly Connection $db,
 		private readonly CacheInterface $cache,
-		private readonly CacheItemPoolInterface $cachePool,
 	) {
 	}
 
@@ -194,7 +191,8 @@ final class LumasAntiSpamListener
 
 	private function isSpamMessageField(Widget $widget): bool
 	{
-		return \in_array($widget->name, ['message', 'nachricht', 'comment'], true);
+		// Wichtig: Wenn dein Nachricht-Feld anders heißt, hier ergänzen.
+		return \in_array($widget->name, ['message', 'nachricht', 'comment', 'msg', 'text'], true);
 	}
 
 	/* =========================================================
@@ -596,19 +594,6 @@ final class LumasAntiSpamListener
 	 * Reputation / IP block duration logic
 	 * =======================================================*/
 
-	/**
-	 * Reputation counts for every error independent of session/ip enforcement.
-	 *
-	 * Rule:
-	 * - after 5 errors => 24h IP block
-	 * - after 10 errors => 5*24h = 120h
-	 * - after 15 errors => 10*24h = 240h
-	 * - after 20 errors => 15*24h = 360h
-	 * ... (every +5 errors adds +120h)
-	 *
-	 * block_count == reputation_score == total error count.
-	 * tstamp is updated on every error (rolling window).
-	 */
 	private function updateReputation(string $ip): void
 	{
 		try {
@@ -627,11 +612,10 @@ final class LumasAntiSpamListener
 
 			// TTL in hours according to step logic
 			if ($score < 5) {
-				$ttlHours = 24; // not blocked yet, but keep a sensible value
+				$ttlHours = 24;
 			} elseif ($score < 10) {
-				$ttlHours = 24; // 5..9 => 24h
+				$ttlHours = 24;
 			} else {
-				// 10..14 => 120h, 15..19 => 240h, 20..24 => 360h, ...
 				$step = intdiv($score, 5) - 1; // 10->1, 15->2, 20->3 ...
 				$ttlHours = 120 * $step;
 			}
@@ -659,7 +643,7 @@ final class LumasAntiSpamListener
 
 			// clear cached status (CacheInterface key)
 			try {
-				$this->cachePool->deleteItem($this->cacheKeyForIp($ip));
+				$this->cache->delete($this->cacheKeyForIp($ip));
 			} catch (\Throwable) {
 				// ignore
 			}
