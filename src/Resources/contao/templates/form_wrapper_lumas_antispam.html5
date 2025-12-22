@@ -1,0 +1,210 @@
+<!-- indexer::stop -->
+<?php
+// Stabile Wrapper-ID – unabhängig vom Redakteur
+$wrapperId = 'lumas-form-' . $this->id;
+?>
+<div id="<?= $wrapperId ?>"
+	 class="<?= $this->class ?> block"
+	 <?php if ($this->style): ?> style="<?= $this->style ?>"<?php endif; ?>>
+
+  <?php if ($this->headline): ?>
+	<<?= $this->hl ?>><?= $this->headline ?></<?= $this->hl ?>>
+  <?php endif; ?>
+
+  <?php if ($this->message): ?>
+	<?php $this->insert('form_message', $this->arrData) ?>
+  <?php else: ?>
+	<?php $this->insert('form_inline', $this->arrData) ?>
+  <?php endif; ?>
+
+</div>
+<!-- indexer::continue -->
+
+<?php if ($this->ajax): ?>
+  <script<?= $this->attrs()->setIfExists('nonce', $this->nonce('script-src')) ?>>
+	window.addEventListener('DOMContentLoaded', () => {
+	  const wrapper = document.getElementById('<?= $wrapperId ?>');
+	  const form = document.querySelector('[data-ajax-form="<?= $this->id ?>"]');
+
+	  function initLumasAntispam(formEl) {
+		if (!formEl) return;
+
+		// Honeypot-Feld (unsichtbar, aber im DOM)
+		let hp = formEl.querySelector('input[name="hp_field"]');
+		if (!hp) {
+		  const hpWrap = document.createElement('div');
+		  hpWrap.className = 'hp-field';
+		  hpWrap.style.position = 'absolute';
+		  hpWrap.style.left = '-9999px';
+		  hpWrap.style.top = 'auto';
+		  hpWrap.style.width = '1px';
+		  hpWrap.style.height = '1px';
+		  hpWrap.style.overflow = 'hidden';
+
+		  hp = document.createElement('input');
+		  hp.type = 'text';
+		  hp.name = 'hp_field';
+		  hp.autocomplete = 'off';
+		  hp.tabIndex = -1;
+
+		  hpWrap.appendChild(hp);
+		  formEl.appendChild(hpWrap);
+		}
+	  }
+
+	  function hasFormError(scope) {
+		if (!scope) return false;
+		return !!(
+		  scope.querySelector('.widget.error') ||
+		  scope.querySelector('.error') ||
+		  scope.querySelector('.tl_error') ||
+		  scope.querySelector('[aria-invalid="true"]')
+		);
+	  }
+
+	  function scrollToWrapperIfError() {
+		if (!wrapper) return;
+		if (!hasFormError(wrapper)) return;
+
+		if (location.hash !== '#' + wrapper.id) {
+		  history.replaceState(null, '', '#' + wrapper.id);
+		}
+		wrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+	  }
+
+	  function request(formEl, body, callback) {
+		const xhr = new XMLHttpRequest();
+		xhr.open('POST', formEl.action, true);
+		xhr.setRequestHeader('Accept', 'text/html');
+		xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+		xhr.setRequestHeader('X-Contao-Ajax-Form', formEl.querySelector('[name="FORM_SUBMIT"]').value);
+
+		formEl.ariaBusy = 'true';
+		formEl.dataset.ajaxForm = 'loading';
+
+		xhr.onload = () => {
+		  formEl.dispatchEvent(new CustomEvent('ajax-form-onload', {
+			bubbles: true,
+			detail: { body, form: formEl, xhr },
+		  }));
+
+		  formEl.ariaBusy = 'false';
+		  formEl.dataset.ajaxForm = '';
+
+		  callback(xhr);
+		};
+
+		xhr.send(body || null);
+	  }
+
+	  function initForm(formEl) {
+		if (!formEl) return;
+
+		initLumasAntispam(formEl);
+
+		formEl.addEventListener('submit', e => {
+		  e.preventDefault();
+
+		  const formData = new FormData(formEl);
+
+		  if (e.submitter) {
+			if (e.submitter.name) {
+			  formData.append(e.submitter.name, e.submitter.value);
+			}
+			e.submitter.disabled = true;
+			setTimeout(() => (e.submitter.disabled = false), 30000);
+		  }
+
+		  request(formEl, formData, xhr => {
+			const locationHeader = xhr.getResponseHeader('X-Ajax-Location');
+			if (locationHeader) {
+			  window.location.href = locationHeader;
+			  return;
+			}
+
+			const range = document.createRange();
+			range.selectNode(formEl.parentNode);
+
+			const newForm = range.createContextualFragment(xhr.responseText).firstElementChild;
+			formEl.replaceWith(newForm);
+
+			if (newForm && !newForm.getAttribute('action')) {
+			  newForm.action = xhr.responseURL;
+			}
+
+			initForm(newForm);
+			scrollToWrapperIfError();
+		  });
+		});
+	  }
+
+	  initForm(form);
+	  scrollToWrapperIfError();
+	});
+  </script>
+<?php else: ?>
+  <script<?= $this->attrs()->setIfExists('nonce', $this->nonce('script-src')) ?>>
+	(function () {
+	  const wrapper = document.getElementById('<?= $wrapperId ?>');
+	  const form = wrapper ? wrapper.querySelector('form') : null;
+
+	  function initLumasAntispam(formEl) {
+		if (!formEl) return;
+
+		let hp = formEl.querySelector('input[name="hp_field"]');
+		if (!hp) {
+		  const hpWrap = document.createElement('div');
+		  hpWrap.className = 'hp-field';
+		  hpWrap.style.position = 'absolute';
+		  hpWrap.style.left = '-9999px';
+		  hpWrap.style.top = 'auto';
+		  hpWrap.style.width = '1px';
+		  hpWrap.style.height = '1px';
+		  hpWrap.style.overflow = 'hidden';
+
+		  hp = document.createElement('input');
+		  hp.type = 'text';
+		  hp.name = 'hp_field';
+		  hp.autocomplete = 'off';
+		  hp.tabIndex = -1;
+
+		  hpWrap.appendChild(hp);
+		  formEl.appendChild(hpWrap);
+		}
+	  }
+
+	  function hasFormError(scope) {
+		if (!scope) return false;
+		return !!(
+		  scope.querySelector('.widget.error') ||
+		  scope.querySelector('.error') ||
+		  scope.querySelector('.tl_error') ||
+		  scope.querySelector('[aria-invalid="true"]')
+		);
+	  }
+
+	  function scrollToWrapperIfError() {
+		if (!wrapper) return;
+		if (!hasFormError(wrapper)) return;
+
+		if (location.hash !== '#' + wrapper.id) {
+		  history.replaceState(null, '', '#' + wrapper.id);
+		}
+		wrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+	  }
+
+	  if (form) {
+		initLumasAntispam(form);
+
+		form.addEventListener('submit', e => {
+		  if (e.submitter) {
+			setTimeout(() => (e.submitter.disabled = true));
+			setTimeout(() => (e.submitter.disabled = false), 30000);
+		  }
+		});
+	  }
+
+	  window.addEventListener('DOMContentLoaded', scrollToWrapperIfError);
+	})();
+  </script>
+<?php endif; ?>

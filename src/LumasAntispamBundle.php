@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Lumas\AntispamBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-class LumasAntispamBundle extends Bundle
+final class LumasAntispamBundle extends Bundle
 {
 }

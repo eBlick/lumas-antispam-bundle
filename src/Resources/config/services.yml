@@ -1,0 +1,17 @@
+services:
+_defaults:
+  autowire: true
+  autoconfigure: true
+
+# Registriert ALLE Klassen im Bundle automatisch
+Lumas\AntispamBundle\:
+  resource: '../../*'
+  exclude:
+    - '../../ContaoManager'
+    - '../../Resources'
+
+# Explizite DCA-Callbacks (klar & lesbar)
+Lumas\AntispamBundle\DataContainer\AntispamIpBlockCacheClearCallback:
+  tags:
+    - { name: contao.callback, table: tl_lumas_antispam_ip_block, target: config.onsubmit, method: onSubmit }
+    - { name: contao.callback, table: tl_lumas_antispam_ip_block, target: config.ondelete, method: onDelete }
