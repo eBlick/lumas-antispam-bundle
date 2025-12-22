@@ -1,0 +1,19 @@
+{
+	"name": "eBlick/lumas-antispam-bundle",
+	"description": "Antispam Erweiterung für Contao 5",
+	"type": "contao-bundle",
+	"license": "MIT",
+	"autoload": {
+		"psr-4": {
+			"Lumas\\AntispamBundle\\": "src/"
+		}
+	},
+	"require": {
+		"php": ">=8.1",
+		"contao/core-bundle": "^5.0",
+		"symfony/framework-bundle": "^5.4 || ^6.0 || ^7.0"
+	},
+	"extra": {
+		"contao-manager-plugin": "Lumas\\AntispamBundle\\ContaoManager\\Plugin"
+	}
+}
