@@ -6,3 +6,116 @@ Contao Antispam includes honeypot, Session &amp; IP Blocking, stop words detecti
 1. Installation via Composer:
    `composer require eBlick/lumas-antispam-bundle`
 2. Contao Manager öffnen und das Plugin laden.
+
+LUMAS AntiSpam Bundle for Contao
+Eine leistungsfähige, vollständig integrierte Anti-Spam-Erweiterung für Contao 5 und 6.
+Das Bundle schützt Formulare zuverlässig vor Spam, Bots und Missbrauch – ohne externe Dienste, DSGVO-konform und granular konfigurierbar.
+
+## Features
+Formularbasierter Spam-Schutz
+- Zeitbasierte Heuristik (Mindest-Ausfüllzeit)
+- Inhaltsanalyse
+- Mindestlänge
+- Stopwort-Erkennung mit Sprachauswahl
+- Maximal erlaubte Links
+- Honeypot-Feld
+- Session-basierte Sperren
+- Globale IP-Reputation
+- Eskalierende Sperrdauer
+- Whitelist & Hard-Block
+- Zentrales Spam-Log
+- Root-Page-Defaults + Formular-Overrides
+- Backend-Module zur Verwaltung
+- Composer / Packagist ready
+
+## Installation
+composer require lumas/antispam-bundle
+
+Danach:
+- Contao Manager / Setup ausführen
+- Cache leeren
+- Backend neu laden
+
+Die Datenbanktabellen werden automatisch angelegt.
+
+## Backend-Module
+Nach der Installation erscheint im Backend eine eigene Rubrik:
+- LUMAS AntiSpam
+- IP-Sperrliste
+- Blockierte IPs
+- Reputation / Eskalationsstufe
+- Whitelist & permanente Sperren
+- Spam-Log
+- Alle blockierten Formularversuche
+- Grund, Formular, Details (JSON)
+
+Benutzer müssen die Module ggf. in den Backend-Rechten aktivieren.
+
+## Konfiguration
+- Globale Defaults (Root-Seite)
+Auf der Root-Seite können Standardwerte für die gesamte Domain definiert werden:
+IP-Reputations-Sperre aktivieren
+Globale IP-Sperrdauer
+Mindest-Ausfüllzeit
+Session-Sperrdauer
+Sprache für Stopwort-Analyse
+Text-Mindestlänge
+Max. Links
+Stopwort-Schwelle
+Diese Werte gelten für alle Formulare, sofern sie nicht überschrieben werden.
+
+## Formular-spezifische Einstellungen
+In jedem Formular:
+- AntiSpam aktivieren
+
+Optionale Overrides:
+- IP-Sperre
+- Zeit- & Text-Heuristik
+- Sprache
+- Nicht gesetzte Werte erben automatisch die Root-Defaults.
+
+## Funktionsweise (vereinfacht)
+
+Formular wird aufgerufen → Startzeit wird gespeichert
+
+Beim Absenden:
+- Honeypot prüfen
+- Mindest-Zeit von Seitenaufruf bis Absenden prüfen
+- Textlänge & Sprache prüfen
+
+Bei Verstoß:
+- Formular wird blockiert
+- Session-Fehlversuche gezählt
+- IP-Negativ Reputation erhöht
+- Log-Eintrag geschrieben
+
+Ab bestimmten Schwellen:
+- Session-Sperre
+- Globale IP-Sperre mit eskalierender Dauer
+- Eskalationslogik (IP-Reputation)
+Verstöße	IP-Sperre
+5	24 h
+10	120 h
+15	240 h
+20	360 h
++120 h je 5 weitere
+
+## Template-Integration
+
+Formular-Wrapper-Template:
+- form_wrapper_lumas_antispam.html5
+
+Funktionen:
+- Automatisches Honeypot-Feld
+- Zeitstempel (form_start)
+- AJAX-Support
+- Automatisches Scrollen bei Fehlern
+
+## Kompatibilität
+- Contao 5.3+
+- Contao 6.x
+- PHP 8.2 – 8.4
+- Keine externen APIs
+
+MIT License
+© LUMAS Consulting
