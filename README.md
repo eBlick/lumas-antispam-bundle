@@ -9,7 +9,7 @@ Contao Antispam includes honeypot, Session &amp; IP Blocking, stop words detecti
 
 LUMAS AntiSpam Bundle for Contao
 Eine leistungsfähige, vollständig integrierte Anti-Spam-Erweiterung für Contao 5 und 6.
-Das Bundle schützt Formulare zuverlässig vor Spam, Bots und Missbrauch – ohne externe Dienste, DSGVO-konform und granular konfigurierbar.
+Das Bundle schützt Formulare vor Spam, Bots und Missbrauch – ohne externe Dienste, granular konfigurierbar.
 
 ## Features
 Formularbasierter Spam-Schutz
