@@ -2,8 +2,10 @@
 Contao Antispam includes honeypot, Session und IP Blocking, stop words detection for different languages, time based blocking.
 
 
-LUMAS AntiSpam Bundle for Contao 5
-Eine einfache aber wirkungsvolle, vollständig integrierte Anti-Spam-Erweiterung für Contao 5 und 6.
+
+LUMAS AntiSpam Bundle for Contao
+Eine einfache aber wirkungsvolle, vollständig integrierte Anti-Spam-Erweiterung für Contao 5.
+
 Das Bundle schützt Formulare vor Spam, Bots und Missbrauch – ohne externe Dienste, granular konfigurierbar.
 
 ## Features
