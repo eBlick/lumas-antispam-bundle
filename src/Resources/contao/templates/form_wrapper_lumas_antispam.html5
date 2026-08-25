@@ -63,12 +63,14 @@ $wrapperId = 'lumas-form-' . $this->id;
 	  }
 
 	  function scrollToWrapperIfError() {
-		if (!wrapper) return;
+	  	if (!wrapper) return;
 		if (!hasFormError(wrapper)) return;
-
+	  
 		if (location.hash !== '#' + wrapper.id) {
-		  history.replaceState(null, '', '#' + wrapper.id);
-		}
+			// Grab the current URL without the hash, then append the new hash
+			const cleanUrl = window.location.href.split('#')[0];
+			history.replaceState(null, '', cleanUrl + '#' + wrapper.id);
+		  }
 		wrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
 	  }
 
